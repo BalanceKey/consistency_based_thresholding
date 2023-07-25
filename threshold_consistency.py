@@ -49,7 +49,7 @@ def threshold_consistency(Ws, p):
 
     :param Ws: NxNxM group of M weighted connectivity matrices
     :param p: proportion of weights to preserve in [0, 1] interval
-    :return: W_thr, thresholded group mean connectivity matrix
+    :return: Wmean, thresholded group mean connectivity matrix
 
     Reference: Roberts and Breakspear (2016)
     '''
@@ -120,7 +120,7 @@ def main():
     plt.imshow(np.log(Wmean_thr))
     plt.show()
 
-    # some histograms just for fun to compare the two methods
+    # some histograms just for fun to compare the two methods, like in the Roberts et al. 2017 paper
     plt.figure()
     plt.hist(np.log(np.average(SC_list, axis=2).flatten() + 0.000000001), bins=70, histtype='step', facecolor='blue', label='AVG')
     plt.hist(np.log(Wmean_std.flatten() + 0.000000001), bins=70, histtype='step', facecolor='black', label='STAND')
