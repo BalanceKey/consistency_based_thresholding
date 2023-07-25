@@ -47,6 +47,8 @@ def threshold_consistency(Ws, p):
     other weigths and all the weights on the main diagonal (self-self connections)
     are set to 0.
 
+    LOW COEFFICIENT OF VARIATION == HIGH CONSISTENCY
+
     :param Ws: NxNxM group of M weighted connectivity matrices
     :param p: proportion of weights to preserve in [0, 1] interval
     :return: Wmean, thresholded group mean connectivity matrix
@@ -74,14 +76,14 @@ def threshold_consistency(Ws, p):
 
     ind = np.argwhere(Wmean>0)                      # find all links
     M = Wcv
-    ind_CV = np.empty(shape=(ind.shape[0], 1))
+    ind_CV = np.empty(shape=(ind.shape[0], 1))      # find CV for all existing links
     for i in range(ind.shape[0]):
         ind_CV[i] = M[ind[i][0], ind[i][1]]
-    print(np.argwhere(np.isnan(ind_CV)))
+    print(np.argwhere(np.isnan(ind_CV)))            # just a sanity check
     ind_M = np.append(ind, ind_CV, axis=1)          # sort by CV (keep the lowest CV, remove the strongest CV)
     E = ind_M[ind_M[:, 2].argsort()]                # sort from lowest to strongest CV (third column)
-    en = round((N**2-N)*p/ud)                       # number of links to be preserved
-    E_to_remove =  E[en + 1:, :-1].astype('int')    # apply threshold, keep lowest CVs == high consistency
+    en = round((N**2-N)*p/ud)                       # amount of links to be preserved from all possible links (N(N-1)/2)
+    E_to_remove = E[en+1:, :2].astype('int')        # apply threshold, keep lowest CVs == high consistency
     for i in E_to_remove:
         Wmean[i[0], i[1]] = 0
 
