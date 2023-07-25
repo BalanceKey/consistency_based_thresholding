@@ -53,7 +53,7 @@ def threshold_consistency(Ws, p):
 
     Reference: Roberts and Breakspear (2016)
     '''
-    Wmean = np.average(Ws, axis=2) #+ 0.0000000000001  # group mean connectivity matrix
+    Wmean = np.average(Ws, axis=2)  # group mean connectivity matrix
     Wstd = np.std(Ws, axis=2)       # group standard deviation matrix
     with np.errstate(divide='ignore', invalid='ignore'):
         Wcv = np.true_divide(Wstd, Wmean)  # coefficient of variation (CV) across the group
@@ -65,7 +65,7 @@ def threshold_consistency(Ws, p):
     # plt.ylabel('Log CV')
     # plt.show()
 
-    N = Wmean.shape[0]  # number of nodes
+    N = Wmean.shape[0]                              # number of nodes
     if np.array_equal(Wmean, Wmean.transpose()):    # if symmetric matrix
         Wmean = np.triu(Wmean)                      # ensure symmetry is preserved
         ud = 2                                      # halve number of removed links
@@ -90,21 +90,24 @@ def threshold_consistency(Ws, p):
     return Wmean
 
 def main():
+    # Importing the connectivity matrices
     retro_data_path = '/Users/dollomab/MyProjects/Epinov_trial/retrospective_patients'
     patients_list = f'{retro_data_path}/sublist.txt'
     SC_list, tract_lengths_list = read_SC_matrices(retro_data_path, patients_list)
-
+    
+    # plotting one of them just for fun
     plt.figure()
     plt.imshow(np.log(SC_list[:,:,18]))
     plt.show()
-
+    
+    # computing network densities of each connectivity matrix 
     network_densities = []
     for i in range(SC_list.shape[2]):
         network_densities.append(network_density(SC_list[:, :, i]))
 
     # Standard method: thresholding the connection weight
     Wmean_std = np.average(SC_list, axis=2)
-    Wline, Wcol = np.where(Wmean_std < 0.00002)
+    Wline, Wcol = np.where(Wmean_std < 0.00002)  # adjust the threshold yourself! 
     for i in range(Wline.size):
         Wmean_std[Wline[i], Wcol[i]] = 0
     plt.figure()
@@ -113,9 +116,8 @@ def main():
 
     # Consistency-based thresholding method
     Ws = SC_list
-    p = np.mean(network_densities)
+    p = np.mean(network_densities)             # p is set to match the mean network density of the cohort
     Wmean_thr = threshold_consistency(Ws, p)
-
     plt.figure()
     plt.imshow(np.log(Wmean_thr))
     plt.show()
